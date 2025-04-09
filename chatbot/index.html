@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Voice Agent - বাংলা</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&display=swap');
+    
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      background-color: #111827;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Floating Button Styles */
+    .floating-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+      z-index: 1000;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: pulse 2s infinite;
+    }
+    
+    .floating-btn:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+    }
+    
+    .floating-btn i {
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+    
+    .floating-btn:hover i {
+      transform: scale(1.2);
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+    
+    /* Chat Container Styles */
+    .chat-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      background-color: #1F2937;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-container.visible {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .chat-container {
+        width: 95%;
+        height: 85vh;
+      }
+      
+      .floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+      }
+      
+      .floating-btn i {
+        font-size: 20px;
+      }
+    }
+    
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating Action Button -->
+  <div class="floating-btn" id="floatingBtn">
+    <i class="fas fa-comment-dots"></i>
+  </div>
+  
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Chat Container -->
+  <div class="chat-container" id="chatContainer">
+    <!-- Header -->
+    <div class="bg-indigo-600 p-4 md:p-6 flex items-center justify-between">
+      <div class="flex items-center space-x-2 md:space-x-3">
+        <div class="bg-white/20 p-2 rounded-lg">
+          <i class="fas fa-robot text-white text-lg md:text-xl"></i>
+        </div>
+        <h1 class="text-lg md:text-xl font-bold">AI Voice Agent - বাংলা</h1>
+      </div>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <div class="relative">
+          <select id="language-select" class="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-xs md:text-sm appearance-none pr-6 md:pr-8">
+            <option value="bn-BD">বাংলা</option>
+            <option value="en-US">English</option>
+            <option value="mixed">বাংলা+English</option>
+          </select>
+          <i class="fas fa-chevron-down absolute right-1 top-1.5 md:right-2 md:top-2 text-xs"></i>
+        </div>
+        <div class="relative">
+          <button id="api-btn" class="bg-white/10 hover:bg-white/20 px-2 py-1 md:px-4 md:py-2 rounded-lg text-xs md:text-sm flex items-center space-x-1 md:space-x-2 transition">
+            <i class="fas fa-key text-xs md:text-base"></i>
+            <span>API Key</span>
+          </button>
+          <div id="api-modal" class="hidden absolute right-0 mt-2 w-60 md:w-72 bg-gray-700 rounded-lg shadow-lg z-10 p-3 md:p-4 border border-gray-600">
+            <h3 class="font-medium mb-2 md:mb-3 text-sm md:text-base">Manage API Key</h3>
+            <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm mb-2 md:mb-3">
+            <div class="flex justify-between">
+              <button id="save-api-btn" class="bg-indigo-500 hover:bg-indigo-600 px-2 py-1 md:px-3 md:py-1 rounded text-xs md:text-sm">Save</button>
+              <button id="clear-api-btn" class="text-gray-400 hover:text-white px-2 py-1 md:px-3 md:py-1 rounded text-xs md:text-sm">Clear</button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 md:mt-3">Your key is stored locally</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6 flex-1 overflow-y-auto">
+      <!-- Status Bar -->
+      <div id="status-bar" class="bg-gray-700 rounded-lg px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm flex items-center justify-between">
+        <div class="flex items-center space-x-1 md:space-x-2">
+          <i class="fas fa-circle text-gray-500"></i>
+          <span id="status-text">প্রস্তুত</span>
+        </div>
+        <div class="text-gray-400 text-xs md:text-sm">
+          <span id="model-info">Model: GPT-4o</span>
+        </div>
+      </div>
+
+      <!-- Conversation Window -->
+      <div class="bg-gray-700 rounded-lg h-48 md:h-64 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4" id="conversation">
+        <div class="flex justify-start">
+          <div class="bg-gray-600 rounded-lg p-2 md:p-3 max-w-xs">
+            <p class="text-xs md:text-sm">হ্যালো! আমি আপনাকে কিভাবে সাহায্য করতে পারি?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="space-y-2 md:space-y-3">
+        <div class="relative">
+          <textarea id="text-output" rows="2" placeholder="টাইপ করুন..." class="w-full bg-gray-600 border border-gray-500 rounded-xl px-3 py-2 md:px-4 md:py-3 pr-12 md:pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs md:text-sm"></textarea>
+          <div class="absolute right-2 bottom-2 md:right-3 md:bottom-3 flex space-x-1 md:space-x-2">
+            <button id="clear-btn" class="text-gray-400 hover:text-white p-0.5 md:p-1">
+              <i class="fas fa-trash-alt text-xs md:text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <button id="send-btn" class="bg-indigo-500 hover:bg-indigo-600 px-4 py-1.5 md:px-6 md:py-2 rounded-full font-medium flex items-center space-x-1 md:space-x-2 transition text-xs md:text-sm">
+            <i class="fas fa-paper-plane text-xs md:text-sm"></i>
+            <span>পাঠান</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    .chat-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+    }
+    .chat-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      max-width: 90vw;
+      transition: all 0.3s ease;
+      transform-origin: bottom right;
+      z-index: 1000;
+    }
+    .chat-container.minimized {
+      width: 60px;
+      height: 60px;
+    }
+  
+    .chat-content {
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      transition: opacity 0.3s ease, height 0.3s ease;
+    }
+    .chat-container.expanded .chat-content {
+      opacity: 1;
+      height: auto;
+    }
+    .chat-container.expanded {
+      animation: expand 0.3s ease forwards;
+    }
+    @keyframes expand {
+      0% {
+        transform: scale(0);
+      }
+      80% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes minimize {
+      0% {
+        transform: scale(1);
+      }
+      20% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(0);
+      }
+    }
