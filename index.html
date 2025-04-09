@@ -7,7 +7,203 @@
     <title>AI Voice Call Agent</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .call-container {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .call-header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .call-screen {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .call-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .call-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .call-button:active {
+            transform: translateY(1px);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 9999px;
+            border: 2px solid var(--primary);
+            animation: pulse 2s infinite;
+            opacity: 0;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+
+            70% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+        }
+
+        .wave-animation {
+            display: flex;
+            align-items: flex-end;
+            height: 24px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            margin: 0 2px;
+            background-color: white;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+
+        .wave-bar:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .wave-bar:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .wave-bar:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .wave-bar:nth-child(5) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                height: 40%;
+            }
+
+            50% {
+                height: 100%;
+            }
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: typing-dot 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-dot {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            position: relative;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            background-color: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background-color: #334155;
+            color: white;
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+        }
+
+        .conversation-container {
+            scroll-behavior: smooth;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -101,7 +297,7 @@
                 <div class="flex justify-center space-x-4">
                     <button id="mute-btn"
                         class="call-button bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center text-white/80">
-                        <i class="fas fa-microphone"></i>
+                        <i class="fas fa-microphone-slash"></i>
                     </button>
 
                     <button id="call-btn"
@@ -114,10 +310,10 @@
                         <i class="fas fa-phone-slash"></i>
                     </button>
 
-                    <!-- <button id="speaker-btn"
+                    <button id="speaker-btn"
                         class="call-button bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center text-white/80">
                         <i class="fas fa-volume-up"></i>
-                    </button> -->
+                    </button>
                 </div>
             </div>
         </div>
@@ -176,7 +372,7 @@
                         <label class="block text-sm mb-2">AI Model</label>
                         <select id="model-select"
                             class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
-                            <option value="gpt-4o-mini">GPT-4o-mini</option>
+                            <option value="gpt-4o-mini">GPT-4o</option>
                             <option value="gpt-4-turbo">GPT-4 Turbo</option>
                             <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                         </select>
@@ -200,7 +396,7 @@
         const hangupBtn = document.getElementById('hangup-btn');
         const muteBtn = document.getElementById('mute-btn');
         const speakerBtn = document.getElementById('speaker-btn');
-        // const languageBtn = document.getElementById('language-btn');
+        const languageBtn = document.getElementById('language-btn');
         const settingsBtn = document.getElementById('settings-btn');
         const callStatus = document.getElementById('call-status');
         const aiStatus = document.getElementById('ai-status');
@@ -212,7 +408,6 @@
         const conversation = document.getElementById('conversation');
         const pulseRing = document.getElementById('pulse-ring');
         const callTimer = document.getElementById('call-timer');
-        // DOM Elements সেকশনে এভাবে যোগ করুন
 
         // Modal Elements
         const languageModal = document.getElementById('language-modal');
@@ -236,7 +431,6 @@
         let callStartTime;
         let timerInterval;
         let recognition;
-        let finalTranscript = '';
 
         // Language Texts
         const languageTexts = {
@@ -253,11 +447,7 @@
                 unmute: 'মিউট খুলুন',
                 speaker: 'স্পিকার',
                 nospeaker: 'স্পিকার বন্ধ',
-                hangup: 'কল শেষ করুন',
-                no_api_key: 'অনুগ্রহ করে প্রথমে একটি বৈধ API কী সেট করুন',
-                invalid_api_key: 'অবৈধ API কী। কীটি অবশ্যই "sk-" দিয়ে শুরু করতে হবে',
-                settings_saved: 'সেটিংস সংরক্ষিত হয়েছে',
-                api_error: 'ত্রুটি: AI এর সাথে সংযোগ করতে ব্যর্থ হয়েছে'
+                hangup: 'কল শেষ করুন'
             },
             'en-US': {
                 ready: 'Ready',
@@ -272,11 +462,7 @@
                 unmute: 'Unmute',
                 speaker: 'Speaker',
                 nospeaker: 'Speaker Off',
-                hangup: 'Hang Up',
-                no_api_key: 'Please set a valid API key first',
-                invalid_api_key: 'Invalid API key. Key must start with "sk-"',
-                settings_saved: 'Settings saved',
-                api_error: 'Error: Failed to connect to AI'
+                hangup: 'Hang Up'
             },
             'mixed': {
                 ready: 'প্রস্তুত/Ready',
@@ -291,11 +477,7 @@
                 unmute: 'মিউট খুলুন/Unmute',
                 speaker: 'স্পিকার/Speaker',
                 nospeaker: 'স্পিকার বন্ধ/Speaker Off',
-                hangup: 'কল শেষ/Hang Up',
-                no_api_key: 'অনুগ্রহ করে API কী সেট করুন/Please set API key',
-                invalid_api_key: 'অবৈধ API কী/Invalid API key',
-                settings_saved: 'সেটিংস সংরক্ষিত/Settings saved',
-                api_error: 'ত্রুটি/Error: AI সংযোগ ব্যর্থ/Connection failed'
+                hangup: 'কল শেষ/Hang Up'
             }
         };
 
@@ -303,26 +485,22 @@
         init();
 
         function init() {
-            const muteBtn = document.getElementById('mute-btn');
-
-            
             // Load saved settings
             if (localStorage.getItem('ai_language')) {
                 currentLanguage = localStorage.getItem('ai_language');
             }
             if (localStorage.getItem('ai_model')) {
                 modelSelect.value = localStorage.getItem('ai_model');
-                aiModel = modelSelect.value;
             }
 
             // Set API key if exists
             apiKeyInput.value = apiKey;
 
-            // Initialize speech recognition
-            initSpeechRecognition();
-
             // Update UI based on language
             updateLanguageUI();
+
+            // Initialize speech recognition if available
+            initSpeechRecognition();
 
             // Set up event listeners
             setupEventListeners();
@@ -338,24 +516,16 @@
 
                 recognition.onresult = (event) => {
                     let interimTranscript = '';
-                    finalTranscript = '';
-
                     for (let i = event.resultIndex; i < event.results.length; i++) {
                         const transcript = event.results[i][0].transcript;
                         if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
+                            addToConversation(transcript, 'user');
+                            sendToAI(transcript);
                         } else {
                             interimTranscript += transcript;
                         }
                     }
-
                     transcriptionText.textContent = interimTranscript;
-
-                    if (finalTranscript) {
-                        addToConversation(finalTranscript, 'user');
-                        sendToAI(finalTranscript);
-                        finalTranscript = '';
-                    }
                 };
 
                 recognition.onerror = (event) => {
@@ -425,11 +595,6 @@
             isCallActive = true;
             callStartTime = new Date();
 
-            document.body.classList.add('is-call-active'); // Add this line
-            muteBtn.innerHTML = '<i class="fas fa-microphone"></i>'; // Unmuted state icon
-            isMuted = false; // কল শুরু হলে মিউট স্টেট রিসেট করুন
-
-
             // Update UI
             callBtn.classList.add('hidden');
             hangupBtn.classList.remove('hidden');
@@ -446,8 +611,10 @@
             // Start speech recognition
             if (recognition) {
                 recognition.start();
-            } else {
-                // Fallback if no speech recognition
+            }
+
+            // Simulate AI greeting if no recognition
+            if (!recognition) {
                 setTimeout(() => {
                     addToConversation(getText('greeting'), 'ai');
                 }, 1500);
@@ -457,8 +624,6 @@
         function stopCall() {
             isCallActive = false;
 
-            document.body.classList.remove('is-call-active'); // Add this line
-            isMuted = false;
             // Update UI
             callBtn.classList.remove('hidden');
             hangupBtn.classList.add('hidden');
@@ -476,21 +641,10 @@
 
         function toggleMute() {
             isMuted = !isMuted;
-
-            // Update icon and tooltip
-            muteBtn.innerHTML = isMuted
-                ? '<i class="fas fa-microphone-slash text-red-400"></i>'
-                : '<i class="fas fa-microphone"></i>';
+            muteBtn.innerHTML = isMuted ?
+                `<i class="fas fa-microphone-slash text-red-400"></i>` :
+                `<i class="fas fa-microphone"></i>`;
             muteBtn.setAttribute('title', isMuted ? getText('unmute') : getText('mute'));
-
-            // Pause/resume speech recognition
-            if (recognition) {
-                if (isMuted) {
-                    recognition.abort(); // Pause listening
-                } else {
-                    recognition.start(); // Resume listening
-                }
-            }
         }
 
         function toggleSpeaker() {
@@ -508,9 +662,9 @@
             const remainingSeconds = seconds % 60;
 
             callTimer.innerHTML = `
-                <i class="fas fa-clock mr-2"></i>
-                <span>${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}</span>
-            `;
+        <i class="fas fa-clock mr-2"></i>
+        <span>${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}</span>
+      `;
         }
 
         async function sendToAI(message) {
@@ -528,15 +682,11 @@
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: aiModel,
+                        model: aiModel, // সঠিক মডেল নিশ্চিত করুন
                         messages: [
                             {
                                 role: 'system',
-                                content: currentLanguage === 'bn-BD' ?
-                                    'আপনি একজন সহায়ক AI সহকারী। সংক্ষেপে বাংলায় উত্তর দিন।' :
-                                    currentLanguage === 'mixed' ?
-                                        'You are a helpful AI assistant. Respond in a mix of Bengali and English based on the user\'s language.' :
-                                        'You are a helpful AI assistant. Respond concisely in English.'
+                                content: 'You are a helpful assistant.'
                             },
                             {
                                 role: 'user',
@@ -556,7 +706,11 @@
 
                 if (aiResponse) {
                     addToConversation(aiResponse, 'ai');
-                    updateStatus('connected', getText('listening'));
+
+                    // Simulate AI speaking delay
+                    setTimeout(() => {
+                        updateStatus('connected', getText('listening'));
+                    }, 2000);
                 }
             } catch (error) {
                 console.error('AI error:', error);
@@ -603,21 +757,19 @@
         }
 
         function updateLanguageUI() {
+            // Update all UI texts based on current language
             const texts = languageTexts[currentLanguage];
 
-            // শুধুমাত্র element থাকলে attribute সেট করুন
-            if (callStatus) callStatus.textContent = texts.ready;
-            if (statusText) statusText.textContent = texts.waiting;
+            // Update buttons and status
+            callStatus.textContent = texts.ready;
+            statusText.textContent = texts.waiting;
+            muteBtn.setAttribute('title', texts.mute);
+            speakerBtn.setAttribute('title', texts.speaker);
+            hangupBtn.setAttribute('title', texts.hangup);
 
-            if (muteBtn) muteBtn.setAttribute('title', texts.mute);
-            if (speakerBtn) speakerBtn.setAttribute('title', texts.speaker);
-            if (hangupBtn) hangupBtn.setAttribute('title', texts.hangup);
-
-            // Language options আপডেট
+            // Mark selected language in modal
             languageOptions.forEach(option => {
                 const icon = option.querySelector('i');
-                if (!icon) return;
-
                 icon.classList.add('hidden');
                 option.classList.remove('border-indigo-500');
 
@@ -666,6 +818,23 @@
                 icon.className = 'fas fa-eye';
             }
         }
+
+        // Add some sample error texts
+        languageTexts['bn-BD']['no_api_key'] = 'অনুগ্রহ করে প্রথমে একটি বৈধ API কী সেট করুন';
+        languageTexts['en-US']['no_api_key'] = 'Please set a valid API key first';
+        languageTexts['mixed']['no_api_key'] = 'অনুগ্রহ করে API কী সেট করুন/Please set API key';
+
+        languageTexts['bn-BD']['invalid_api_key'] = 'অবৈধ API কী। কীটি অবশ্যই "sk-" দিয়ে শুরু করতে হবে';
+        languageTexts['en-US']['invalid_api_key'] = 'Invalid API key. Key must start with "sk-"';
+        languageTexts['mixed']['invalid_api_key'] = 'অবৈধ API কী/Invalid API key';
+
+        languageTexts['bn-BD']['settings_saved'] = 'সেটিংস সংরক্ষিত হয়েছে';
+        languageTexts['en-US']['settings_saved'] = 'Settings saved';
+        languageTexts['mixed']['settings_saved'] = 'সেটিংস সংরক্ষিত/Settings saved';
+
+        languageTexts['bn-BD']['api_error'] = 'ত্রুটি: AI এর সাথে সংযোগ করতে ব্যর্থ হয়েছে';
+        languageTexts['en-US']['api_error'] = 'Error: Failed to connect to AI';
+        languageTexts['mixed']['api_error'] = 'ত্রুটি/Error: AI সংযোগ ব্যর্থ/Connection failed';
     </script>
 </body>
 
